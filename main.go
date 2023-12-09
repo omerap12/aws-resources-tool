@@ -1,8 +1,8 @@
 package main
 
 import (
-	ec2 "aws-resource-inv-tool/ec2"
-	sts "aws-resource-inv-tool/sts"
+	"aws-resource-inv-tool/ec2"
+	"aws-resource-inv-tool/sts"
 	"fmt"
 )
 
@@ -14,9 +14,18 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("Connected as: ")
-	fmt.Println(sts_output)
+	fmt.Println("Connected as: ", *sts_output.Arn)
 
-	ec2.GetAllIntances()
+	// instances, err := ec2.GetAllIntances()
+	// if err != nil {
+	// 	fmt.Printf(err.Error())
+	// 	return
+	// }
+	// fmt.Println(instances)
+	instances, err := ec2.GetInstancesByType("t2.micro")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(instances)
 
 }
