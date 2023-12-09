@@ -1,4 +1,4 @@
-package validator
+package sts
 
 import (
 	"fmt"

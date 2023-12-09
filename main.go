@@ -1,14 +1,14 @@
 package main
 
 import (
-	validator "aws-resource-inv-tool/validator"
+	sts "aws-resource-inv-tool/sts"
 	"fmt"
 )
 
 func main() {
 
 	// User validor checker
-	sts_output, err := validator.CheckCredetianls()
+	sts_output, err := sts.CheckCredetianls()
 	if err != nil {
 		fmt.Println(err)
 		return
