@@ -6,6 +6,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
+type ec2Info struct {
+    id string
+    state string
+}
+
+func newEc2Info(id string, state string) *ec2Info {
+	e := ec2Info{id:id,state: state}
+	return &e
+}
+
 func CheckInstances() {
 	return
 }
