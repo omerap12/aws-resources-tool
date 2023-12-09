@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
+
+	// User validor checker
 	sts_output, err := validator.CheckCredetianls()
 	if err != nil {
 		fmt.Println(err)
