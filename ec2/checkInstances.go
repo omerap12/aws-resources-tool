@@ -1,69 +1,74 @@
 package ec2
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"context"
+	"fmt"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
 )
 
 type ec2Info struct {
-    id string
-    state string
+	id          string
+	name        string
+	state       string
+	machineType string
+	
 }
 
-func newEc2Info(id string, state string) *ec2Info {
-	e := ec2Info{id:id,state: state}
+func newEc2Info(id string, name string, state string, machineType string) *ec2Info {
+	e := ec2Info{id: id, name: name, state: state, machineType: machineType}
 	return &e
 }
 
-func CheckInstances() {
-	return
-}
-
-func GetAllIntances() (*ec2.DescribeInstancesOutput, error) {
-	sess, err := session.NewSession()
+func GetAllInstances() ([]*ec2Info, error) {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		return nil, err
 	}
-	svc := ec2.New(sess)
+
+	ec2Client := ec2.NewFromConfig(cfg)
 	input := &ec2.DescribeInstancesInput{}
-	result, err := svc.DescribeInstances(input)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func GetInstancesByType(instanceType string) ([]map[string]string, error) {
-	sess, err := session.NewSession()
-	if err != nil {
-		return nil, err
-	}
-	svc := ec2.New(sess)
-	input := &ec2.DescribeInstancesInput{
-		Filters: []*ec2.Filter{
-			{
-				Name: aws.String("instance-type"),
-				Values: []*string{
-					aws.String("t2.micro"),
-				},
-			},
-		},
-	}
-	result, err := svc.DescribeInstances(input)
+	result, err := ec2Client.DescribeInstances(context.TODO(), input)
 	if err != nil {
 		return nil, err
 	}
 
-	instances_arr := []map[string]string{}
-	for _, reservation := range result.Reservations {
-		for _, instance := range reservation.Instances {
-			ele := map[string]string{
-				"InstanceId": *instance.InstanceId,
-				"State":      *instance.State.Name,
+	instancesList := make([]*ec2Info, 0)
+
+	for _, resr := range result.Reservations {
+		for _, instance := range resr.Instances {
+			var name string
+
+			for _, tag := range instance.Tags {
+				if aws.ToString(tag.Key) == "Name" {
+					name = aws.ToString(tag.Value)
+					break
+				}
 			}
-			instances_arr = append(instances_arr, ele)
+
+			state := string(instance.State.Name)
+			machineType := string(instance.InstanceType)
+
+			instancesList = append(instancesList, newEc2Info(
+				aws.ToString(instance.InstanceId),
+				name,
+				state,
+				machineType,
+			))
+
+			// fmt.Printf("%s, %s, %s, %s\n",
+			// 	aws.ToString(instance.InstanceId),
+			// 	name,
+			// 	state,
+			// 	machineType,
+			// )
 		}
 	}
-	return instances_arr, nil
+	for _,ins := range instancesList {
+		fmt.Println(*ins)
+	}
+
+	return instancesList, nil
 }
