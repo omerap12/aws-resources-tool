@@ -1,11 +1,12 @@
 package sts
 
 import (
+	"context"
 	"fmt"
 	"os"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 func CheckCredetianls() (*sts.GetCallerIdentityOutput, error) {
@@ -22,18 +23,17 @@ func CheckCredetianls() (*sts.GetCallerIdentityOutput, error) {
 		return nil, fmt.Errorf("Missing AWS_DEFAULT_REGION")
 	}
 
-	// Create sesstion based on env variables
-	sess, err := session.NewSession()
+	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return nil, err
 	}
-	svc := sts.New(sess)
 
-	// calling sts get-caller-identity
-	input := &sts.GetCallerIdentityInput{}
-	result, err := svc.GetCallerIdentity(input)
+	clientSts := sts.NewFromConfig(cfg)
+	inputSts := &sts.GetCallerIdentityInput{}
+	result, err := clientSts.GetCallerIdentity(context.TODO(), inputSts)
+
 	if err != nil {
-		return nil, fmt.Errorf(err.Error())
+		return nil, err
 	}
 	return result, nil
 }

@@ -13,6 +13,5 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("Connected as: ")
-	fmt.Println(sts_output)
+	fmt.Println("Connected as: ", *sts_output.Arn)
 }
