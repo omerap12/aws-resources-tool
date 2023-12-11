@@ -2,7 +2,6 @@ package ec2
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -77,9 +76,5 @@ func GetInstances(args *RequestArgs) ([]*Ec2Info, error) {
 			))
 		}
 	}
-	for _, ins := range instancesList {
-		fmt.Println(*ins)
-	}
-
 	return instancesList, nil
 }
