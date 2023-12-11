@@ -14,23 +14,35 @@ type ec2Info struct {
 	name        string
 	state       string
 	machineType string
-	
 }
+
+type requestArgs map[string]interface{}
 
 func newEc2Info(id string, name string, state string, machineType string) *ec2Info {
 	e := ec2Info{id: id, name: name, state: state, machineType: machineType}
 	return &e
 }
 
-func GetAllInstances() ([]*ec2Info, error) {
+func GetInstances(args requestArgs) ([]*ec2Info, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		return nil, err
 	}
 
+	// instanceType := "t2.micro"
 	ec2Client := ec2.NewFromConfig(cfg)
-	input := &ec2.DescribeInstancesInput{}
-	result, err := ec2Client.DescribeInstances(context.TODO(), input)
+
+	filters := ec2.Filter
+	filters := []types.Filter{
+		{
+			Name: types.String("tag:Name"),
+			Values: []string{
+				"dev-*",
+			},
+		},
+	}
+	input := ec2.DescribeInstancesInput{Filters: filters}
+	result, err := ec2Client.DescribeInstances(context.TODO(), &input)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +78,7 @@ func GetAllInstances() ([]*ec2Info, error) {
 			// )
 		}
 	}
-	for _,ins := range instancesList {
+	for _, ins := range instancesList {
 		fmt.Println(*ins)
 	}
 
