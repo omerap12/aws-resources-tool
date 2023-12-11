@@ -2,6 +2,7 @@ package main
 
 import (
 	"aws-resource-inv-tool/ec2"
+	"aws-resource-inv-tool/prints"
 	"fmt"
 )
 
@@ -21,5 +22,5 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
- 	ec2.PrintInstances(instances)
+ 	prints.PrintInstances(instances)
 }

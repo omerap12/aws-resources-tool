@@ -10,16 +10,16 @@ import (
 )
 
 type Ec2Info struct {
-	id          string
-	name        string
-	state       string
-	machineType string
+	ID          string
+	Name        string
+	State       string
+	MachineType string
 }
 
 type RequestArgs map[string]interface{}
 
 func newEc2Info(id string, name string, state string, machineType string) *Ec2Info {
-	e := Ec2Info{id: id, name: name, state: state, machineType: machineType}
+	e := Ec2Info{ID: id, Name: name, State: state, MachineType: machineType}
 	return &e
 }
 
