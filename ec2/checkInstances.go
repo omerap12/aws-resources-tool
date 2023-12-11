@@ -7,23 +7,24 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
-type ec2Info struct {
+type Ec2Info struct {
 	id          string
 	name        string
 	state       string
 	machineType string
 }
 
-type requestArgs map[string]interface{}
+type RequestArgs map[string]interface{}
 
-func newEc2Info(id string, name string, state string, machineType string) *ec2Info {
-	e := ec2Info{id: id, name: name, state: state, machineType: machineType}
+func newEc2Info(id string, name string, state string, machineType string) *Ec2Info {
+	e := Ec2Info{id: id, name: name, state: state, machineType: machineType}
 	return &e
 }
 
-func GetInstances(args requestArgs) ([]*ec2Info, error) {
+func GetInstances(args *RequestArgs) ([]*Ec2Info, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		return nil, err
@@ -32,22 +33,27 @@ func GetInstances(args requestArgs) ([]*ec2Info, error) {
 	// instanceType := "t2.micro"
 	ec2Client := ec2.NewFromConfig(cfg)
 
-	filters := ec2.Filter
-	filters := []types.Filter{
-		{
-			Name: types.String("tag:Name"),
-			Values: []string{
-				"dev-*",
-			},
-		},
+	var instanceType []string
+	if queryInstanceType, ok := (*args)["instance-type"]; ok && queryInstanceType != nil {
+		instanceType = queryInstanceType.([]string)
 	}
-	input := ec2.DescribeInstancesInput{Filters: filters}
-	result, err := ec2Client.DescribeInstances(context.TODO(), &input)
+
+	var filters []types.Filter
+	if len(instanceType) > 0 {
+		filters = append(filters, types.Filter{
+			Name:   aws.String("instance-type"),
+			Values: instanceType,
+		})
+	}
+
+	result, err := ec2Client.DescribeInstances(context.TODO(), &ec2.DescribeInstancesInput{
+		Filters: filters,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	instancesList := make([]*ec2Info, 0)
+	instancesList := make([]*Ec2Info, 0)
 
 	for _, resr := range result.Reservations {
 		for _, instance := range resr.Instances {
@@ -69,13 +75,6 @@ func GetInstances(args requestArgs) ([]*ec2Info, error) {
 				state,
 				machineType,
 			))
-
-			// fmt.Printf("%s, %s, %s, %s\n",
-			// 	aws.ToString(instance.InstanceId),
-			// 	name,
-			// 	state,
-			// 	machineType,
-			// )
 		}
 	}
 	for _, ins := range instancesList {
