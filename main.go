@@ -21,7 +21,5 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
-	ec2.PrintInstances(instances)
-
+ 	ec2.PrintInstances(instances)
 }
