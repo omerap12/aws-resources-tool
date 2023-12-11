@@ -15,17 +15,9 @@ func main() {
 		return
 	}
 	fmt.Println("Connected as: ", *sts_output.Arn)
-
-	// instances, err := ec2.GetAllIntances()
-	// if err != nil {
-	// 	fmt.Printf(err.Error())
-	// 	return
-	// }
-	// fmt.Println(instances)
 	instances, err := ec2.GetInstancesByType("t2.micro")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	fmt.Println(instances)
-
 }
