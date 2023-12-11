@@ -12,7 +12,7 @@ import (
 func CheckCredetianls() (*sts.GetCallerIdentityOutput, error) {
 	aws_access_key_id := os.Getenv("AWS_ACCESS_KEY_ID")
 	aws_secret_access_key := os.Getenv("AWS_SECRET_ACCESS_KEY")
-	aws_region := os.Getenv("AWS_DEFAULT_REGION")
+	aws_region := os.Getenv("AWS_REGION")
 	if aws_access_key_id == "" {
 		return nil, fmt.Errorf("Missing AWS_ACCESS_KEY_ID")
 	}
